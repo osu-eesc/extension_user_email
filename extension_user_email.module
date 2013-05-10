@@ -1,0 +1,43 @@
+<?php
+
+function extension_user_email_mail_alter(&$message) {
+  if ($message['id'] == 'user_register_admin_created') {
+  
+  $account = $message['params']['account'];
+  $name = $account->name;
+  $login_once = user_pass_reset_url($account);
+  $user_url = url('user', array('absolute' => TRUE, 'language' => $language));
+  $site_name = variable_get('site_name', 'Drupal');
+  $site_url = substr($base_url, strlen('http://'));
+  
+  $body_content = "<html>\n<body>";
+  $body_content .= "Hi '$name',<br /><br />";
+  $body_content .= "A website administrator at the Extension Computing and Technology Unit (ECTU) has created an account for you.<br /><br />";
+  $body_content .= "To login:";
+  $body_content .= "<ul><li>Visit $user_url</li>";
+  $body_content .= "<li>Enter username: $name (ONID username)</li>";
+  $body_content .= "<li>Enter password: ONID password</li></ul>";
+  $body_content .= "Or, you may also log in by clicking this link or copying it into your browser (this is a one-time login, so it can be used only once):<br />";
+  $body_content .= "$login_once<br /><br /><br />";
+  $body_content .= "--  ECTU Team<br /><br />";
+  $body_content .= "<hr /><br />";
+  $body_content .= "<b>Drupal and other website resources:</b>\n";
+  $body_content .= "<ul><li><a href=\"http://extension.oregonstate.edu/help/training/drupal-quick-reference-guide\">Drupal Quick-Reference Guide</li>";
+  $body_content .= "<li><a href=\"http://extension.oregonstate.edu/help/training/web-help\">Other web help resources</a></li></ul>";
+  $body_content .= "</body>\n</html>";
+  
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+  $message['subject'] = "New account for $site_name website";
+  $message['body'] = $body_content;
+  }
+}
+
+function extension_user_email_form_user_admin_settings_alter(&$form) {
+  unset($form['email']['admin_created']['user_mail_register_admin_created_subject']);
+  unset($form['email']['admin_created']['user_mail_register_admin_created_body']);
+  $form['email']['admin_created']['#description'] = "Customize welcome e-mail messages sent to new member accounts created by an administrator.<br /><strong>Overridden by the Extension User Email module.</strong>";
+}
+
+function extension_user_email_form_user_register_alter(&$form) {
+  $form['notify']['#default_value'] = 1;
+}

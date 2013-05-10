@@ -1,0 +1,6 @@
+name = Extension User Email
+description = Sets a custom new user notification email for this site.
+package = Extension
+version = "6.x-1.0"
+core = "6.x"
+project = "extension_user_email"
